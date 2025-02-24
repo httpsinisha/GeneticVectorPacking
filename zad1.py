@@ -36,10 +36,14 @@ def generisi_slucajnu_populaciju(stavke, dimenzije=2, velicina_populacije=10):
     
     return populacija
 
+def fitness(resenje):
+    return len(resenje)  #broj binova - sto manje, to bolje
+
+
 if __name__ == "__main__":
     stavke = [(0.3, 0.4), (0.5, 0.2), (0.4, 0.6), (0.2, 0.3), (0.6, 0.5)]
     
     populacija = generisi_slucajnu_populaciju(stavke, dimenzije=2, velicina_populacije=5)
 
     for i, resenje in enumerate(populacija):
-        print(f"Rješenje {i+1}: {resenje}")
+        print(f"Rjesenje {i+1}: {resenje}, Fitness: {fitness(resenje)}")
