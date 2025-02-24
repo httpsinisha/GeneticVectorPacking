@@ -39,7 +39,7 @@ def generisi_slucajnu_populaciju(stavke, dimenzije=2, velicina_populacije=10):
 def fitness(rjesenje):
     total_weight = 0
     for bin in rjesenje:
-        total_weight += sum([stavka[0] for stavka in bin])  # Pretpostavljamo da je stavka tuple (težina, vrednost)
+        total_weight += sum([stavka[0] for stavka in bin]) 
     return total_weight
 
 
@@ -94,21 +94,40 @@ def mutacija(rjesenje, dimenzije=2):
 def evolucija(populacija, dimenzije=2, verovatnoca_mutacije=0.1):
     nova_populacija = []
     
-    # Selekcija, crossover i mutacija za svaku generaciju
     while len(nova_populacija) < len(populacija):
         roditelj1 = turnirska_selekcija(populacija)
         roditelj2 = turnirska_selekcija(populacija)
-        
-        # Crossover
         dijete = crossover(roditelj1, roditelj2)
-        
-        # Mutacija sa verovatnoćom
         if random.random() < verovatnoca_mutacije:
             dijete = mutacija(dijete, dimenzije)
         
         nova_populacija.append(dijete)
     
     return nova_populacija
+
+    
+#mozda bolja evolucija
+
+# def evolucija(populacija, dimenzije=2, vjerovatnoca_mutacije=0.1, elitizam=2):
+#     nova_populacija = []
+    
+#     while len(nova_populacija) < len(populacija) - elitizam:
+#         roditelj1 = turnirska_selekcija(populacija)
+#         roditelj2 = turnirska_selekcija(populacija)
+        
+#         dijete = crossover(roditelj1, roditelj2)
+        
+#         if random.random() < verovatnoca_mutacije:
+#             dijete = mutacija(dijete, dimenzije)
+        
+#         nova_populacija.append(dijete)
+    
+#     elitni_individui = sorted(populacija, key=lambda r: fitness(r))[:elitizam]
+#     nova_populacija.extend(elitni_individui)
+    
+#     return nova_populacija
+
+
 
 
 if __name__ == "__main__":
