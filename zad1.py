@@ -36,16 +36,11 @@ def generisi_slucajnu_populaciju(stavke, dimenzije=2, velicina_populacije=10):
     
     return populacija
 
-def fitness(rjesenje, dimenzije=2):
-    broj_binova = len(rjesenje)
-    
-    ukupno_praznog_prostora = 0
+def fitness(rjesenje):
+    total_weight = 0
     for bin in rjesenje:
-        popunjenost = [sum(stavka[i] for stavka in bin) for i in range(dimenzije)]
-        preostalo = sum(1 - p for p in popunjenost) 
-        ukupno_praznog_prostora += preostalo
-
-    return broj_binova + (ukupno_praznog_prostora / (len(rjesenje) * dimenzije))
+        total_weight += sum([stavka[0] for stavka in bin])  # Pretpostavljamo da je stavka tuple (težina, vrednost)
+    return total_weight
 
 
 def turnirska_selekcija(populacija, velicina_turnira=3):
@@ -63,20 +58,57 @@ def crossover(roditelj1, roditelj2, dimenzije=2):
     stavke_lista = list(sve_stavke)
     
     random.shuffle(stavke_lista)
-    dete = []
+    dijete = []
     for stavka in stavke_lista:
         dodato = False
-        for bin in dete:
+        for bin in dijete:
             if validan_bin(bin + [stavka], dimenzije):
                 bin.append(stavka)
                 dodato = True
                 break
         if not dodato:
-            dete.append([stavka])
+            dijete.append([stavka])
     
-    return dete
+    return dijete
 
 
+def mutacija(rjesenje, dimenzije=2):
+    bin_indeks = random.randint(0, len(rjesenje) - 1)
+    if len(rjesenje[bin_indeks]) <= 1:
+        return rjesenje
+
+    stavka_indeks = random.randint(0, len(rjesenje[bin_indeks]) - 1)
+    stavka = rjesenje[bin_indeks][stavka_indeks]
+    
+    drugi_bin_indeks = random.randint(0, len(rjesenje) - 1)
+    
+    rjesenje[bin_indeks].remove(stavka)
+    if validan_bin(rjesenje[drugi_bin_indeks] + [stavka], dimenzije):
+        rjesenje[drugi_bin_indeks].append(stavka)
+    else:
+        rjesenje[bin_indeks].append(stavka)
+    
+    return rjesenje
+
+
+def evolucija(populacija, dimenzije=2, verovatnoca_mutacije=0.1):
+    nova_populacija = []
+    
+    # Selekcija, crossover i mutacija za svaku generaciju
+    while len(nova_populacija) < len(populacija):
+        roditelj1 = turnirska_selekcija(populacija)
+        roditelj2 = turnirska_selekcija(populacija)
+        
+        # Crossover
+        dijete = crossover(roditelj1, roditelj2)
+        
+        # Mutacija sa verovatnoćom
+        if random.random() < verovatnoca_mutacije:
+            dijete = mutacija(dijete, dimenzije)
+        
+        nova_populacija.append(dijete)
+    
+    return nova_populacija
 
 
 if __name__ == "__main__":
@@ -87,12 +119,10 @@ if __name__ == "__main__":
 
     populacija = generisi_slucajnu_populaciju(stavke, dimenzije=2, velicina_populacije=10)
 
-    roditelj1 = turnirska_selekcija(populacija)
-    roditelj2 = turnirska_selekcija(populacija)
-
-    print("\nRoditelj 1:", roditelj1, "Fitness:", fitness(roditelj1))
-    print("Roditelj 2:", roditelj2, "Fitness:", fitness(roditelj2))
-
-    dijete = crossover(roditelj1, roditelj2)
-    print("\nDijete nakon crossovera:", dijete, "Fitness:", fitness(dijete))
+    #evolucija za 100 generacija
+    for generacija in range(100):
+        populacija = evolucija(populacija, dimenzije=2, verovatnoca_mutacije=0.1)
+    
+        najbolje_rjesenje = min(populacija, key=lambda r: fitness(r))
+        print(f"Generacija {generacija + 1} - Najbolje rjesenje fitness: {fitness(najbolje_rjesenje)}")
 
