@@ -20,24 +20,24 @@ def generisi_slucajnu_populaciju(stavke, dimenzije=2, velicina_populacije=10):
     
     for _ in range(velicina_populacije):
         random.shuffle(stavke)
-        resenje = []
+        rjesenje = []
         
         for stavka in stavke:
             dodato = False
-            for bin in resenje:
+            for bin in rjesenje:
                 if validan_bin(bin + [stavka], dimenzije):
                     bin.append(stavka)
                     dodato = True
                     break
             if not dodato:
-                resenje.append([stavka])
+                rjesenje.append([stavka])
         
-        populacija.append(resenje)
+        populacija.append(rjesenje)
     
     return populacija
 
 def fitness(rjesenje, dimenzije=2):
-    broj_binova = len(resenje)
+    broj_binova = len(rjesenje)
     
     ukupno_praznog_prostora = 0
     for bin in rjesenje:
@@ -45,7 +45,7 @@ def fitness(rjesenje, dimenzije=2):
         preostalo = sum(1 - p for p in popunjenost) 
         ukupno_praznog_prostora += preostalo
 
-    return broj_binova + (ukupno_praznog_prostora / (len(resenje) * dimenzije))
+    return broj_binova + (ukupno_praznog_prostora / (len(rjesenje) * dimenzije))
 
 
 def turnirska_selekcija(populacija, velicina_turnira=3):
@@ -57,18 +57,35 @@ def turnirska_selekcija(populacija, velicina_turnira=3):
     return najbolji
 
 
+
+def crossover(roditelj1, roditelj2):
+    #koristi se ukrstanje pola-pola ili nasumicno
+    duzina1 = len(roditelj1) // 2
+    duzina2 = len(roditelj2) // 2
+
+    dijete = roditelj1[:duzina1] + roditelj2[duzina2:]
+
+    if sum(len(bin) for bin in dijete) != sum(len(bin) for bin in roditelj1):
+        return random.choice([roditelj1, roditelj2])
+    
+    return dijete
+
+
+
 if __name__ == "__main__":
     stavke = [
         (0.7, 0.2), (0.6, 0.3), (0.5, 0.5), (0.4, 0.6), (0.3, 0.7),
         (0.8, 0.1), (0.2, 0.9), (0.1, 0.8), (0.6, 0.4), (0.9, 0.2)
     ]
-    
+
     populacija = generisi_slucajnu_populaciju(stavke, dimenzije=2, velicina_populacije=10)
 
-    print("Populacija prije selekcije:")
-    for i, resenje in enumerate(populacija):
-        print(f"Rjesenje {i+1}: {resenje}, Fitness: {fitness(resenje)}")
+    roditelj1 = turnirska_selekcija(populacija)
+    roditelj2 = turnirska_selekcija(populacija)
 
-    najbolji = turnirska_selekcija(populacija)
-    print("\nNajbolje rjesenje poslije selekcije:", najbolji, "Fitness:", fitness(najbolji))
+    print("\nRoditelj 1:", roditelj1, "Fitness:", fitness(roditelj1))
+    print("Roditelj 2:", roditelj2, "Fitness:", fitness(roditelj2))
+
+    dijete = crossover(roditelj1, roditelj2)
+    print("\nDijete nakon crossovera:", dijete, "Fitness:", fitness(dijete))
 
