@@ -58,17 +58,24 @@ def turnirska_selekcija(populacija, velicina_turnira=3):
 
 
 
-def crossover(roditelj1, roditelj2):
-    #koristi se ukrstanje pola-pola ili nasumicno
-    duzina1 = len(roditelj1) // 2
-    duzina2 = len(roditelj2) // 2
-
-    dijete = roditelj1[:duzina1] + roditelj2[duzina2:]
-
-    if sum(len(bin) for bin in dijete) != sum(len(bin) for bin in roditelj1):
-        return random.choice([roditelj1, roditelj2])
+def crossover(roditelj1, roditelj2, dimenzije=2):
+    sve_stavke = set(stavka for bin in roditelj1 + roditelj2 for stavka in bin)
+    stavke_lista = list(sve_stavke)
     
-    return dijete
+    random.shuffle(stavke_lista)
+    dete = []
+    for stavka in stavke_lista:
+        dodato = False
+        for bin in dete:
+            if validan_bin(bin + [stavka], dimenzije):
+                bin.append(stavka)
+                dodato = True
+                break
+        if not dodato:
+            dete.append([stavka])
+    
+    return dete
+
 
 
 
